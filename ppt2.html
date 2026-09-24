@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Para qué Stellar?</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #060811;
+    --bg-panel: #0d1120;
+    --bg-panel-2: #121729;
+    --line: #232a44;
+    --ink: #edf1fb;
+    --ink-dim: #97a1c2;
+    --ink-faint: #5c6588;
+    --cyan: #2fe6c9;
+    --cyan-dim: #17a893;
+    --magenta: #ff5fd0;
+    --gold: #ffcf6e;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    overflow: hidden;
+  }
+
+  body {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .mono {
+    font-family: "Space Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  /* ---------- deck chrome ---------- */
+
+  .deck {
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    background:
+      radial-gradient(circle at 14% 18%, rgba(47,230,201,0.10), transparent 42%),
+      radial-gradient(circle at 88% 82%, rgba(255,95,208,0.09), transparent 46%),
+      var(--bg);
+  }
+
+  .railtrack {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--line);
+    z-index: 5;
+  }
+  .rail {
+    height: 100%;
+    background: linear-gradient(90deg, var(--magenta), var(--cyan) 45%, var(--gold) 80%, var(--magenta));
+    background-size: 220% 100%;
+    animation: railmove 7s linear infinite;
+    width: 0%;
+    transition: width .4s ease;
+  }
+  @keyframes railmove { from { background-position: 0 0; } to { background-position: -220% 0; } }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 7vh 9vw 9vh;
+  }
+  .slide.active { display: flex; }
+
+  .eyebrow {
+    font-family: "Space Mono", monospace;
+    text-transform: uppercase;
+    letter-spacing: .16em;
+    font-size: clamp(.7rem, 1vw, .85rem);
+    color: var(--cyan);
+    margin: 0 0 1.4rem;
+  }
+  .eyebrow.magenta { color: var(--magenta); }
+  .eyebrow.gold { color: var(--gold); }
+
+  h1.title {
+    font-size: clamp(2.2rem, 5.2vw, 4.4rem);
+    line-height: 1.05;
+    margin: 0 0 1.1rem;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+  h2.title { font-size: clamp(1.7rem, 3.6vw, 3rem); line-height: 1.1; margin: 0 0 1rem; text-wrap: balance; font-weight: 700; }
+
+  p.lede {
+    font-size: clamp(1.05rem, 1.7vw, 1.5rem);
+    line-height: 1.55;
+    color: var(--ink-dim);
+    max-width: 46ch;
+    margin: 0;
+  }
+
+  .accent { color: var(--cyan); }
+  .accent-m { color: var(--magenta); }
+  .accent-g { color: var(--gold); }
+
+  /* ---------- reusable pieces ---------- */
+
+  .bignum {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 1;
+    color: var(--cyan);
+    margin-bottom: .6rem;
+  }
+
+  .rowset {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 1.1rem;
+    margin-top: 2.2rem;
+    max-width: 1100px;
+  }
+  .rowset.two { grid-template-columns: repeat(2, minmax(0,1fr)); max-width: 760px; }
+  .ledger-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.3rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .ledger-card .name {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    color: var(--ink);
+  }
+  .ledger-card .desc {
+    font-size: clamp(.85rem, 1.05vw, 1rem);
+    color: var(--ink-dim);
+    line-height: 1.45;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 4vw;
+    align-items: center;
+    max-width: 1200px;
+  }
+
+  .pause-slide {
+    align-items: center;
+    text-align: center;
+  }
+  .pause-slide .bignum { color: var(--gold); }
+  .pause-slide h2 { max-width: 30ch; margin-left: auto; margin-right: auto; }
+  .pause-slide p.lede { margin-left: auto; margin-right: auto; }
+
+  .keytakes { display:flex; flex-direction:column; gap: 1rem; margin-top: 1.8rem; max-width: 640px; }
+  .keytakes .kt { display:flex; gap: 1rem; align-items:flex-start; }
+  .keytakes .kt .n { font-family:"Space Mono",monospace; font-weight:700; color: var(--magenta); font-size: 1.1rem; min-width: 1.6rem; }
+  .keytakes .kt .t { font-size: clamp(1rem, 1.4vw, 1.2rem); color: var(--ink); line-height:1.4; }
+
+  /* nav + footer */
+  .navhint {
+    position: absolute;
+    bottom: 2.2vh; left: 9vw;
+    font-family: "Space Mono", monospace;
+    font-size: .7rem;
+    color: var(--ink-faint);
+    letter-spacing: .04em;
+    z-index: 5;
+  }
+  .counter {
+    position: absolute;
+    bottom: 2.2vh; right: 9vw;
+    font-family: "Space Mono", monospace;
+    font-size: .78rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+    z-index: 5;
+  }
+  .counter .now { color: var(--cyan); }
+
+  .arrows { position:absolute; top:0; bottom:0; width:14%; z-index:6; cursor:pointer; display:flex; align-items:center; }
+  .arrows.left { left:0; justify-content:flex-start; padding-left:2vw; }
+  .arrows.right { right:0; justify-content:flex-end; padding-right:2vw; }
+  .arrows::after {
+    content: "";
+    width: 2.6rem; height: 2.6rem;
+    border-radius: 50%;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    opacity: .8;
+    transition: opacity .2s ease, border-color .2s ease, background .2s ease;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Space Mono", monospace;
+    font-size: 1.3rem;
+    color: var(--cyan);
+  }
+  .arrows.left::after { content: "←"; }
+  .arrows.right::after { content: "→"; }
+  .arrows:hover::after { opacity: 1; border-color: var(--cyan); background: rgba(47,230,201,0.12); }
+
+  .slide a[target="_blank"] { transition: opacity .15s ease; }
+  .slide a[target="_blank"]:hover { text-decoration: underline !important; opacity: .75; }
+
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail { animation: none; background-position: 0 0; }
+  }
+
+  .qtag {
+    display: inline-block;
+    align-self: flex-start;
+    width: fit-content;
+    font-family: "Space Mono", monospace;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    padding: .32rem .75rem;
+    border-radius: 3px;
+    margin-bottom: 1.3rem;
+  }
+  .qtag.q { background: rgba(47,230,201,0.13); color: var(--cyan); }
+  .qtag.a { background: rgba(255,207,110,0.15); color: var(--gold); }
+
+  .codebox {
+    font-family: "Space Mono", monospace;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem;
+    color: var(--cyan);
+    font-size: clamp(.82rem, 1.15vw, 1.02rem);
+    max-width: 640px;
+    margin-top: 1.6rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  .speaker {
+    margin-top: 2.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    max-width: 46ch;
+  }
+  .speaker .name {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
+    color: var(--ink);
+    margin-bottom: .3rem;
+  }
+  .speaker .tags {
+    font-family: "Space Mono", monospace;
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--ink-faint);
+  }
+
+  .callout {
+    margin-top: 1.5rem;
+    padding: 1rem 1.3rem;
+    border-left: 3px solid var(--cyan);
+    background: var(--bg-panel);
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    color: var(--ink);
+    max-width: 44ch;
+    line-height: 1.45;
+  }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout.magenta { border-left-color: var(--magenta); }
+
+  .linkrow {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.2rem;
+    flex-wrap: wrap;
+  }
+  .linkrow .link {
+    font-family: "Space Mono", monospace;
+    font-size: clamp(.88rem, 1.05vw, 1.02rem);
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--bg-panel);
+    padding: .6rem 1rem;
+    border-radius: 4px;
+    transition: border-color .15s ease;
+  }
+  .linkrow .link:hover, .linkrow .link:focus-visible { border-color: var(--cyan); }
+  .linkrow .link span { color: var(--cyan); }
+
+  .flowchart {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  .fbox {
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    font-size: 1.05rem;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1rem 1.6rem;
+    color: var(--ink);
+    min-width: 220px;
+    text-align: center;
+  }
+  .fbox.accent-border { border-color: var(--cyan); color: var(--cyan); }
+  .farrow { color: var(--ink-faint); font-size: 1.3rem; }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Manrope:wght@400;500;700;800&display=swap">
+</head>
+<body>
+<div class="deck">
+  <div class="railtrack"><div class="rail" id="rail"></div></div>
+  <div id="stage"></div>
+  <div class="arrows left" onclick="go(-1)"></div>
+  <div class="arrows right" onclick="go(1)"></div>
+  <div class="navhint">← / → para avanzar</div>
+  <div class="counter"><span class="now" id="cnow">01</span> / <span id="ctotal">00</span></div>
+</div>
+
+<script>
+const slides = [];
+
+function slide(html, opts={}) {
+  slides.push({ html, ...opts });
+}
+
+// 1 — título
+slide(`
+  <div class="eyebrow">Argentina Builder Challenge · Office Hours 9 (Semana 2)</div>
+  <h1 class="title">¿Para qué<br><span class="accent">Stellar?</span></h1>
+  <div class="speaker">
+    <div class="name">Eli</div>
+    <div class="tags">Builder · Smart Contracts · Producto</div>
+  </div>
+`);
+
+// 2 — quién soy
+slide(`
+  <div class="eyebrow">Bloque 0 · Arrancamos</div>
+  <h2 class="title">¿Quién soy?</h2>
+  <div style="margin-top:.9rem; display:flex; flex-direction:column; gap:.4rem; max-width:900px; font-size:.82rem; color:var(--ink-dim);">
+    <div><a href="https://github.com/BuenDia-Builders" target="_blank" rel="noopener" style="font-weight:700; color:var(--ink); text-decoration:none;">Buen Día Builders ↗</a> · Productos, código y proyectos</div>
+    <div><a href="https://github.com/BuenDia-Builders/codigofutura" target="_blank" rel="noopener" style="font-weight:700; color:var(--ink); text-decoration:none;">Código Futura ↗</a> · Builders & Founders Journey, con Stellar Development Foundation y BAF</div>
+    <div><span style="font-weight:700; color:var(--ink);">Guías y herramientas open source</span> · Usadas en hackathons oficiales</div>
+    <div><a href="https://github.com/BuenDia-Builders/Lendara-Protocol" target="_blank" rel="noopener" style="font-weight:700; color:var(--ink); text-decoration:none;">Lendara Protocol ↗</a> · SDK / paquete npm de Stellar, con Anouk Rimola y Karen Gianetto</div>
+    <div><a href="https://github.com/BuenDia-Builders/stellar-guide-vendimia-tech" target="_blank" rel="noopener" style="font-weight:700; color:var(--ink); text-decoration:none;">Stellar Guide (Vendimia Tech) ↗</a> · Guía práctica para builders con Stellar y Soroban</div>
+    <div><a href="https://github.com/mariaelisaaraya/stellar-map" target="_blank" rel="noopener" style="font-weight:700; color:var(--ink); text-decoration:none;">Stellar Map ↗</a> · Onboarding al ecosistema y modelos mentales</div>
+  </div>
+  <div style="margin-top:1rem;"><a href="https://github.com/mariaelisaaraya" target="_blank" rel="noopener" class="mono accent" style="text-decoration:none; font-size:.85rem;">GitHub → mariaelisaaraya ↗</a></div>
+`);
+
+// 3 — deja de funcionar sin Stellar
+slide(`
+  <div class="eyebrow">Bloque 0 · Arrancamos</div>
+  <h2 class="title">Si le saco Stellar a tu proyecto,<br>¿deja de funcionar?</h2>
+  <div class="bignum accent-g" style="margin-top:1.4rem;">No.</div>
+  <p class="lede">Y eso no significa que esté mal.</p>
+`);
+
+// 4 — el ejercicio
+slide(`
+  <div class="eyebrow">Bloque 1 · El ejercicio más importante</div>
+  <h2 class="title">¿Qué cambia en tu producto<br>porque existe Stellar?</h2>
+  <div class="callout">No me digan qué hace Stellar. Díganme qué puede hacer su producto <em>gracias</em> a Stellar que de otra forma no tendría sentido.</div>
+`);
+
+// 6 — porque usamos blockchain no alcanza
+slide(`
+  <div class="eyebrow magenta">Bloque 2 · "Porque usamos blockchain" no alcanza</div>
+  <h2 class="title">"Porque usamos blockchain."</h2>
+  <div class="bignum accent-m">No alcanza.</div>
+  <div class="callout magenta">Es como responder "¿por qué usás una base de datos?" con "porque tenemos datos." Contame qué problema resolvés con eso.</div>
+`);
+
+// 8 — mini ejercicio
+slide(`
+  <div class="eyebrow magenta">Bloque 2 · "Porque usamos blockchain" no alcanza</div>
+  <h2 class="title">Completá la frase.</h2>
+  <div class="codebox">Nuestro proyecto necesita Stellar porque ______.</div>
+  <p class="lede" style="margin-top:1.2rem;">No pueden poner "blockchain". Tampoco "smart contracts". Tampoco "descentralización" si no pueden explicar qué cambia gracias a eso.</p>
+`);
+
+// 11 — transaction successful
+slide(`
+  <div class="eyebrow">Bloque 4 · Bajamos a tierra: la transacción</div>
+  <h2 class="title mono" style="color:var(--cyan);">Transaction successful.</h2>
+  <p class="lede">¿Pagó de verdad?</p>
+`);
+
+// 12 — callout simulada vs real
+slide(`
+  <div class="eyebrow">Bloque 4 · Bajamos a tierra: la transacción</div>
+  <h2 class="title">Se ven exactamente iguales<br>en pantalla.</h2>
+  <div class="callout">Una transacción simulada y una transacción real. Esa es la trampa.</div>
+`);
+
+// 13 — dónde
+slide(`
+  <div class="eyebrow magenta">Bloque 5 · La pregunta incómoda</div>
+  <div class="bignum accent-m">¿Dónde?</div>
+  <p class="lede">Cuenta. Transacción. Que ocurrió, de verdad. En <a href="https://stellar.expert/" target="_blank" rel="noopener" style="color:inherit;">Stellar Expert ↗</a>.</p>
+`);
+
+// 14 — flowchart dice vs verifica
+slide(`
+  <div class="eyebrow magenta">Bloque 5 · La pregunta incómoda</div>
+  <h2 class="title">Dos frases muy distintas.</h2>
+  <div class="flowchart">
+    <div class="fbox">Mi app dice<br>que pasó</div>
+    <div class="farrow">≠</div>
+    <div class="fbox accent-border">Puedo verificar<br>que pasó</div>
+  </div>
+`);
+
+// 15 — wallet real
+slide(`
+  <div class="eyebrow gold">Bloque 6 · Wallet real</div>
+  <h2 class="title">¿Qué funciona de verdad<br>y qué todavía no?</h2>
+`);
+
+// 16 — callout no necesito demo perfecta
+slide(`
+  <div class="eyebrow gold">Bloque 6 · Wallet real</div>
+  <h2 class="title">No necesito una demo perfecta.</h2>
+  <div class="callout gold">Necesito saber qué es real y qué todavía está simulado. Eso evalúa el producto, no una ilusión del producto.</div>
+`);
+
+// 17 — ensayo no examen
+slide(`
+  <div class="eyebrow">Bloque 7 · Preguntas rápidas a cada equipo</div>
+  <h2 class="title">Ensayo, no examen.</h2>
+`);
+
+// helper for question slides
+function qSlide(n, text) {
+  slide(`
+    <div class="eyebrow">Bloque 7 · Pregunta ${n} / 5</div>
+    <div class="qtag q">Pregunta</div>
+    <h2 class="title">${text}</h2>
+  `);
+}
+
+// 18–22 — las 5 preguntas
+qSlide(1, "En una frase: ¿qué hace su proyecto?");
+qSlide(2, "¿Quién tiene el problema que están resolviendo?");
+qSlide(3, "¿Qué cambia gracias a Stellar?");
+qSlide(4, "¿Qué parte de su proyecto ocurre realmente on-chain?");
+qSlide(5, "¿Qué parte todavía está simulada?");
+
+// 24 — checkpoint 2
+slide(`
+  <div class="eyebrow magenta">Bloque 8 · La agenda de mañana</div>
+  <h2 class="title"><span class="accent-m">Checkpoint #2</span></h2>
+  <p class="lede mono">feature freeze · deploy en testnet · guion de pitch</p>
+`);
+
+// 25 — readme order
+slide(`
+  <div class="eyebrow magenta">Bloque 8 · La agenda de mañana</div>
+  <h2 class="title">El README, en orden.</h2>
+  <div class="keytakes">
+    <div class="kt"><div class="n">01</div><div class="t">Problema.</div></div>
+    <div class="kt"><div class="n">02</div><div class="t">Solución.</div></div>
+    <div class="kt"><div class="n">03</div><div class="t">Flujo de uso, paso a paso.</div></div>
+    <div class="kt"><div class="n">04</div><div class="t">Por qué Stellar.</div></div>
+    <div class="kt"><div class="n">05</div><div class="t">Stack técnico. Al final, no arriba.</div></div>
+  </div>
+`);
+
+// 26 — fechas
+slide(`
+  <div class="eyebrow magenta">Bloque 8 · La agenda de mañana</div>
+  <h2 class="title">Lo que viene.</h2>
+  <div class="rowset two">
+    <div class="ledger-card"><div class="name">Jue 24/09</div><div class="desc">Checkpoint #2.</div></div>
+    <div class="ledger-card"><div class="name">Dom 27/09 · 23:59</div><div class="desc">Cierre de submission final.</div></div>
+    <div class="ledger-card"><div class="name">28/09 al 1/10</div><div class="desc">Evaluación del jurado.</div></div>
+    <div class="ledger-card"><div class="name">Vie 2/10 · 17:00</div><div class="desc">Anuncio de resultados en vivo.</div></div>
+  </div>
+`);
+
+// 27 — cierre: qué pierdo
+slide(`
+  <div class="eyebrow">Cierre</div>
+  <h2 class="title">Si saco Stellar, ¿qué pierdo?</h2>
+  <div class="keytakes">
+    <div class="kt"><div class="n">01</div><div class="t">¿Qué problema estamos resolviendo?</div></div>
+    <div class="kt"><div class="n">02</div><div class="t">¿Qué cambia gracias a Stellar?</div></div>
+    <div class="kt"><div class="n">03</div><div class="t">¿Qué parte funciona realmente?</div></div>
+    <div class="kt"><div class="n">04</div><div class="t">¿Qué parte todavía estamos simulando?</div></div>
+  </div>
+`);
+
+// 28 — gracias
+slide(`
+  <div class="bignum accent">Vení, mostrame<br>qué construiste.</div>
+  <div class="linkrow">
+    <a class="link" href="https://github.com/mariaelisaaraya" target="_blank" rel="noopener">GitHub → <span>mariaelisaaraya</span></a>
+    <a class="link" href="https://x.com/ar3lisa" target="_blank" rel="noopener">X → <span>ar3lisa</span></a>
+    <a class="link" href="https://open.spotify.com/episode/59LsKUzSJGnkmznkHsNhRu" target="_blank" rel="noopener">Podcast → <span>Agarrá una silla y vení</span></a>
+  </div>
+`);
+
+// ---------- engine ----------
+let i = 0;
+const stage = document.getElementById("stage");
+slides.forEach((s, idx) => {
+  const el = document.createElement("div");
+  el.className = "slide" + (s.pause ? " pause-slide" : "");
+  el.innerHTML = s.html;
+  el.dataset.idx = idx;
+  stage.appendChild(el);
+});
+document.getElementById("ctotal").textContent = String(slides.length).padStart(2,"0");
+
+function render() {
+  document.querySelectorAll(".slide").forEach((el,idx) => {
+    el.classList.toggle("active", idx === i);
+  });
+  document.getElementById("cnow").textContent = String(i+1).padStart(2,"0");
+  document.getElementById("rail").style.width = (((i+1)/slides.length)*100) + "%";
+}
+function go(d) {
+  i = Math.min(slides.length-1, Math.max(0, i+d));
+  render();
+}
+window.addEventListener("keydown", (e) => {
+  if (["ArrowRight","PageDown"," "].includes(e.key)) { go(1); e.preventDefault(); }
+  if (["ArrowLeft","PageUp"].includes(e.key)) { go(-1); e.preventDefault(); }
+});
+render();
+</script>
+</body>
+</html>
